@@ -115,7 +115,7 @@ static void presetWithFallback(uint8_t presetID, uint8_t effectID, uint8_t palet
  
 // Callback function that will be executed when data is received
 #ifdef ESP8266
-void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
+void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len, signed int rssi, bool broadcast) {
 #else
 void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
 #endif
@@ -171,24 +171,19 @@ void handleRemote() {
     if ((esp_now_state == ESP_NOW_STATE_UNINIT) && (interfacesInited || apActive)) { // ESPNOW requires Wifi to be initialized (either STA, or AP Mode) 
       DEBUG_PRINTLN(F("Initializing ESP_NOW listener"));
       // Init ESP-NOW
-      if (esp_now_init() != 0) {
+      quickEspNow.onDataRcvd (OnDataRecv);
+
+      if (quickEspNow.begin () != 0) {
         DEBUG_PRINTLN(F("Error initializing ESP-NOW"));
         esp_now_state = ESP_NOW_STATE_ERROR;
       }
 
-      #ifdef ESP8266
-      esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
-      #endif
-      
-      esp_now_register_recv_cb(OnDataRecv);
       esp_now_state = ESP_NOW_STATE_ON;
     }
   } else {
     if (esp_now_state == ESP_NOW_STATE_ON) {
       DEBUG_PRINTLN(F("Disabling ESP-NOW Remote Listener"));
-      if (esp_now_deinit() != 0) {
-        DEBUG_PRINTLN(F("Error de-initializing ESP-NOW"));
-      }
+      quickEspNow.stop();
       esp_now_state = ESP_NOW_STATE_UNINIT;
     } else if (esp_now_state == ESP_NOW_STATE_ERROR) {
       //Clear any error states (allows retrying by cycling)

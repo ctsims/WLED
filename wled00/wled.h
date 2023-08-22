@@ -76,7 +76,7 @@
   #include <user_interface.h>
   }
   #ifndef WLED_DISABLE_ESPNOW
-    #include <espnow.h>
+    #include <QuickEspNow.h>
   #endif
 #else // ESP32
   #include <HardwareSerial.h>  // ensure we have the correct "Serial" on new MCUs (depends on ARDUINO_USB_MODE and ARDUINO_USB_CDC_ON_BOOT)
@@ -96,7 +96,7 @@
   #include "esp_task_wdt.h"
 
   #ifndef WLED_DISABLE_ESPNOW
-    #include <esp_now.h>
+    #include <QuickEspNow.h>
   #endif
 #endif
 #include <Wire.h>
